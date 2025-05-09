@@ -16,23 +16,25 @@
 
     <h1 id="titulo">FocusTime</h1>
     <p id="subtitulo">Sua calculadora de horas de estudo</p>
+    <form id ="formulario">
+      <label for="nome" id="nome-label">Nome:</label>
+      <input type="text" id="nome" placeholder="Seu nome">
 
-    <label for="nome" id="nome-label">Nome:</label>
-    <input type="text" id="nome" placeholder="Seu nome">
+      <label for="horas" id="horas-label">Horas de estudo:</label>
+      <input type="number" id="horas" placeholder="Ex: 2">
 
-    <label for="horas" id="horas-label">Horas de estudo:</label>
-    <input type="number" id="horas" placeholder="Ex: 2">
+      <div class="botoes">
+        <button id="botao-adicionar">Adicionar</button>
+        <button id="botao-limpar">Limpar</button>
+      </div>
 
-    <div class="botoes">
-      <button id="botao-adicionar">Adicionar</button>
-      <button id="botao-limpar">Limpar</button>
-    </div>
-
+    </form>
+    
     <p id="resposta"></p>
   </div>
 
   <footer>
-    <p>Desenvolvido com ❤ por <a href="https://github.com/gabrielasodias" target="_blank">Gabriela Dias</a></p>
+    <p id="rodape-texto">Made with ❤️ by <a href="https://github.com/gabrielasodias" target="_blank">Gabriela Dias</a></p>
   </footer>
 
   <script src="script.js"></script>

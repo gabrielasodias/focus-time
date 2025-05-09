@@ -1,77 +1,104 @@
-const idiomas = {
+const progressoPorNome = JSON.parse(localStorage.getItem('progresso')) || {};
+let idiomaAtual = 'pt';
+
+const formulario = document.getElementById('formulario');
+const nomeInput = document.getElementById('nome');
+const horasInput = document.getElementById('horas');
+const resposta = document.getElementById('resposta');
+const botaoTema = document.getElementById('toggle-theme');
+const botaoIdioma = document.getElementById('botao-idioma');
+const botaoAdicionar = document.getElementById('botao-adicionar');
+const botaoLimpar = document.getElementById('botao-limpar');
+
+// Idiomas
+const textos = {
   pt: {
     titulo: "FocusTime",
-    subtitulo: "Sua calculadora de horas de estudo",
-    nomeLabel: "Nome:",
-    horasLabel: "Horas de estudo:",
+    nome: "Nome:",
+    placeholderNome: "Seu nome",
+    horas: "Horas estudadas:",
+    placeholderHoras: "Ex: 2",
     botaoAdicionar: "Adicionar",
     botaoLimpar: "Limpar",
+    respostaInicial: "Digite seu nome e as horas estudadas.",
+    respostaFinal: (nome, horas) => `${nome} já estudou ${horas} hora(s).`,
     idiomaBotao: "🇺🇸 English"
   },
   en: {
     titulo: "FocusTime",
-    subtitulo: "Your study hours calculator",
-    nomeLabel: "Name:",
-    horasLabel: "Study hours:",
+    nome: "Name:",
+    placeholderNome: "Your name",
+    horas: "Study hours:",
+    placeholderHoras: "Ex: 2",
     botaoAdicionar: "Add",
     botaoLimpar: "Clear",
+    respostaInicial: "Enter your name and study hours.",
+    respostaFinal: (nome, horas) => `${nome} has studied ${horas} hour(s).`,
     idiomaBotao: "🇧🇷 Português"
   }
 };
 
-let idiomaAtual = "pt";
-
-function atualizarIdioma() {
-  const i = idiomas[idiomaAtual];
-  document.getElementById("titulo").textContent = i.titulo;
-  document.getElementById("subtitulo").textContent = i.subtitulo;
-  document.getElementById("nome-label").textContent = i.nomeLabel;
-  document.getElementById("horas-label").textContent = i.horasLabel;
-  document.getElementById("botao-adicionar").textContent = i.botaoAdicionar;
-  document.getElementById("botao-limpar").textContent = i.botaoLimpar;
-  document.getElementById("botao-idioma").textContent = i.idiomaBotao;
+// Função para trocar idioma
+function alternarIdioma() {
+  idiomaAtual = idiomaAtual === 'pt' ? 'en' : 'pt';
+  atualizarIdioma();
 }
 
-document.getElementById("botao-idioma").addEventListener("click", () => {
-  idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
-  atualizarIdioma();
-});
+function atualizarIdioma() {
+  const t = textos[idiomaAtual];
 
-atualizarIdioma(); // Carregando idioma inicial
+  document.querySelector('h1').innerText = t.titulo;
+  document.querySelector('label[for="nome"]').innerText = t.nome;
+  document.querySelector('label[for="horas"]').innerText = t.horas;
+  botaoAdicionar.innerText = t.botaoAdicionar;
+  botaoLimpar.innerText = t.botaoLimpar;
+  nomeInput.placeholder = t.placeholderNome;
+  horasInput.placeholder = t.placeholderHoras;
+  botaoIdioma.innerText = t.idiomaBotao;
+  resposta.innerText = t.respostaInicial;
+}
 
-// Salvando o progresso
-const resposta = document.getElementById("resposta");
-let totalHoras = Number(localStorage.getItem("totalHoras")) || 0;
+// Evento do formulário
+formulario.addEventListener('submit', function (e) {
+  e.preventDefault();
 
-document.getElementById("botao-adicionar").addEventListener("click", () => {
-  const nome = document.getElementById("nome").value.trim();
-  const horas = Number(document.getElementById("horas").value);
+  const nome = nomeInput.value.trim();
+  const horas = parseFloat(horasInput.value);
 
-  if (nome === "" || isNaN(horas) || horas < 0) {
-    resposta.textContent = idiomaAtual === "pt" ? "Preencha os campos corretamente!" : "Please fill in the fields correctly!";
-    resposta.style.color = "red";
+  if (!nome || isNaN(horas)) {
+    alert("Preencha corretamente!");
     return;
   }
 
-  totalHoras += horas;
-  localStorage.setItem("totalHoras", totalHoras);
+  if (!progressoPorNome[nome]) {
+    progressoPorNome[nome] = 0;
+  }
 
-  resposta.textContent =
-    idiomaAtual === "pt"
-      ? `Olá, ${nome}! Você estudou ${horas} horas hoje. Total: ${totalHoras} horas.`
-      : `Hi, ${nome}! You studied ${horas} hours today. Total: ${totalHoras} hours.`;
+  progressoPorNome[nome] += horas;
 
-  resposta.style.color = "green";
+  // Atualiza localStorage
+  localStorage.setItem('progresso', JSON.stringify(progressoPorNome));
+
+  resposta.innerText = textos[idiomaAtual].respostaFinal(nome, progressoPorNome[nome]);
+
+  horasInput.value = '';
 });
 
-document.getElementById('toggle-theme').addEventListener('click', () => {
+// Evento de limpar
+botaoLimpar.addEventListener('click', function (e) {
+  e.preventDefault();
+  nomeInput.value = '';
+  horasInput.value = '';
+  resposta.innerText = textos[idiomaAtual].respostaInicial;
+});
+
+// Evento de tema escuro
+botaoTema.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
 });
 
-document.getElementById("botao-limpar").addEventListener("click", () => {
-  document.getElementById("nome").value = "";
-  document.getElementById("horas").value = "";
-  resposta.textContent = "";
-  localStorage.removeItem("totalHoras");
-  totalHoras = 0;
-});
+// Evento de idioma
+botaoIdioma.addEventListener('click', alternarIdioma);
+
+// Inicialização
+atualizarIdioma();
